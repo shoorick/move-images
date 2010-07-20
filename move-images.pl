@@ -40,8 +40,10 @@ sub wanted {
 
 =head1 DESCRIPTION
 
-Move images from memory card to HDD, remove leading letters from its names,
-lowercase these names and change file mode.
+Move images from memory card to HDD:
+remove leading letters from its names, lowercase these names,
+attempt to create subfolder named as I<year>/I<month>/I<day>
+and move file into this subfolder and change file mode of moved file.
 
 =head1 USAGE
 
