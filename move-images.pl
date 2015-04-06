@@ -51,7 +51,7 @@ Prints the manual page and exit.
 
 =item B<-v>, B<--verbose>
 
-Be verbose.
+Be verbose. Show names of processed files.
 
 =back
 
@@ -146,5 +146,5 @@ sub wanted {
     -d  $new_dir
     and move $File::Find::name, $new_path
     and chmod $mode, $new_path
-    and print "$File::Find::name => $new_path";
+    and $verbose and print "$File::Find::name => $new_path";
 } # sub wanted
