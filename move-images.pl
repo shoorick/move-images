@@ -35,7 +35,7 @@ through default value C<2> for day up to C<5> for second.
 
 =item B<--chmod>=C<MODE>
 
-Change mode of new folders to C<MODE>.
+Change mode of processed files to C<MODE>.
 
 =item B<-k>, B<--keep-prefix>
 
