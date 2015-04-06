@@ -37,6 +37,10 @@ through default value C<2> for day up to C<5> for second.
 
 Change mode of new folders to C<MODE>.
 
+=item B<-k>, B<--keep-prefix>
+
+Do not remove non-digital prefixes from names of files.
+
 =item B<-?>, B<-h>, B<--help>
 
 Print a brief help message and exit.
@@ -79,7 +83,7 @@ use Desktop::Notify;
 
 map { $_ = '' } my (
     $need_help, $need_manual, $verbose,
-    $path_src,
+    $path_src, $keep_prefix,
 );
 my $path_dst  = $ENV{'HOME'} . '/photo'; # path to destination. Don't use ~ for your homedir
 my $precision = 2;    # 0 for year .. 5 for second
@@ -94,6 +98,7 @@ GetOptions(
     'source|src:s'      => \$path_src,
     'destination|dst:s' => \$path_dst,
     'chmod:s'           => \$mode,
+    'keep_prefix'       => \$keep_prefix,
 );
 
 use Pod::Usage qw( pod2usage );
@@ -126,7 +131,7 @@ exit;
 sub wanted {
     return unless /\.(3gp|avi|cr2|crw|dng|jpe?g|mov|nef|raf|raw|tiff?)/i;
     my $new_name = lc $_;
-       $new_name =~ s/^\D+//;
+       $new_name =~ s/^\D+// unless $keep_prefix;
 
     my $info = ImageInfo( $File::Find::name );
     my @date = split /\D+/, $info->{'DateTimeOriginal'};
