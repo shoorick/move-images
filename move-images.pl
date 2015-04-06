@@ -33,6 +33,10 @@ Set precision for grouping of photos.
 Allowed values are from C<0> for year
 through default value C<2> for day up to C<5> for second.
 
+=item B<--chmod>=C<MODE>
+
+Change mode of new folders to C<MODE>.
+
 =item B<-?>, B<-h>, B<--help>
 
 Print a brief help message and exit.
