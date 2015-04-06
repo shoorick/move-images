@@ -15,9 +15,42 @@ and move file into this subfolder and change file mode of moved file.
 
     ./move-images [ options ] [ path-to-memory-card ]
 
-=head1 TUNING
+=head1 OPTIONS
 
-All parameters placed in lines from 12 to 17 can be changed to proper values.
+=over 4
+
+=item B<-s>, B<--src>, B<--source>=C<PATH>
+
+Use C<PATH> for source instead of (first-argument)/DCIM
+
+=item B<-d>, B<--dst>, B<--destination>=C<PATH>
+
+Use C<PATH> for destination instead of ~/photo/*
+
+=item B<-p>, B<--precision>=C<LEVEL>
+
+Set precision for grouping of photos.
+Allowed values are from C<0> for year
+through default value C<2> for day up to C<5> for second.
+
+=item B<-?>, B<-h>, B<--help>
+
+Print a brief help message and exit.
+
+=item B<-m>, B<--man>, B<--manual>
+
+Prints the manual page and exit.
+
+=item B<-v>, B<--verbose>
+
+Be verbose.
+
+=back
+
+=head1 LEGACY TUNING
+
+Tuning by source code editing is B<deprecated> now.
+Use options instead (see above).
 
 =head1 AUTHOR
 
@@ -41,13 +74,22 @@ use Image::ExifTool qw(:Public);
 use Desktop::Notify;
 
 map { $_ = '' } my (
-    $need_help, $need_manual, $verbose
+    $need_help, $need_manual, $verbose,
+    $path_src,
 );
+my $path_dst  = $ENV{'HOME'} . '/photo'; # path to destination. Don't use ~ for your homedir
+my $precision = 2;    # 0 for year .. 5 for second
+my $mode      = 0644; # for chmod
 
 GetOptions(
     'help|?'  => \$need_help,
     'manual'  => \$need_manual,
     'verbose' => \$verbose,
+
+    'precision:i'       => \$precision,
+    'source|src:s'      => \$path_src,
+    'destination|dst:s' => \$path_dst,
+    'chmod:s'           => \$mode,
 );
 
 use Pod::Usage qw( pod2usage );
@@ -57,19 +99,12 @@ pod2usage('verbose' => 2)
 pod2usage(1)
     if $need_help;
 
-# You can change these variables
+unless ( $path_src ) {
+   $path_src  = shift @ARGV || '/media/nikon'; # path to memory card
+   $path_src .= '/DCIM';
+}
 
-my $PATH_SRC  = shift @ARGV || '/media/nikon'; # path to memory card
-   $PATH_SRC .= '/DCIM';
-
-my $PATH_DST  = $ENV{'HOME'} . '/photo'; # path to destination. Don't use ~ for your homedir
-my $PRECISION = 2;    # 0 for year .. 5 for second
-my $MODE      = 0644; # for chmod
-
-
-# Don't touch the rest of file
-
-find( \&wanted, $PATH_SRC );
+find( \&wanted, $path_src );
 
 # Say when ended
 my $notify = Desktop::Notify->new();
@@ -81,6 +116,9 @@ my $notification = $notify->create(
 $notification->show();
 $notification->close();
 
+exit;
+
+
 sub wanted {
     return unless /\.(3gp|avi|cr2|crw|dng|jpe?g|mov|nef|raf|raw|tiff?)/i;
     my $new_name = lc $_;
@@ -88,8 +126,8 @@ sub wanted {
 
     my $info = ImageInfo( $File::Find::name );
     my @date = split /\D+/, $info->{'DateTimeOriginal'};
-      $#date = $PRECISION;
-    my $new_dir = join '/', $PATH_DST, @date;
+      $#date = $precision;
+    my $new_dir = join '/', $path_dst, @date;
 
     make_path $new_dir
         unless -d $new_dir;
@@ -98,6 +136,6 @@ sub wanted {
 
     -d  $new_dir
     and move $File::Find::name, $new_path
-    and chmod $MODE, $new_path
+    and chmod $mode, $new_path
     and print "$File::Find::name => $new_path";
 } # sub wanted
