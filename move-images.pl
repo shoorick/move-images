@@ -116,14 +116,21 @@ unless ( $path_src ) {
 find( \&wanted, $path_src );
 
 # Say when ended
-my $notify = Desktop::Notify->new();
-my $notification = $notify->create(
-    'summary' => 'Photos was moved',
-    'body'    => 'You can unmount your memory card',
-    'timeout' => 5000,
-);
-$notification->show();
-$notification->close();
+my $summary = 'Photos was moved';
+my $message = 'You can unmount your memory card';
+if ( $ENV{'DISPLAY'} ) {
+    my  $notify = Desktop::Notify->new();
+    my $notification = $notify->create(
+        'summary' => $summary,
+        'body'    => $message,
+        'timeout' => 5000,
+    );
+    $notification->show();
+    $notification->close();
+}
+else {
+    print STDERR "$summary. $message." if $verbose;
+}
 
 exit;
 
@@ -146,5 +153,5 @@ sub wanted {
     -d  $new_dir
     and move $File::Find::name, $new_path
     and chmod $mode, $new_path
-    and $verbose and print "$File::Find::name => $new_path";
+    and $verbose and print STDERR "$File::Find::name => $new_path";
 } # sub wanted
