@@ -141,6 +141,12 @@ sub wanted {
        $new_name =~ s/^\D+// unless $keep_prefix;
 
     my $info = ImageInfo( $File::Find::name );
+
+    print STDERR "$info->{'Error'} - $info->{'Directory'}/$info->{'FileName'}"
+        if exists $info->{'Error'};
+
+    return unless $info->{'DateTimeOriginal'};
+
     my @date = split /\D+/, $info->{'DateTimeOriginal'};
       $#date = $precision;
     my $new_dir = join '/', $path_dst, @date;
